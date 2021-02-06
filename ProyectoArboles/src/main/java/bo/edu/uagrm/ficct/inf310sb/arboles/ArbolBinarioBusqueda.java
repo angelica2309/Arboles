@@ -2,7 +2,7 @@ package bo.edu.uagrm.ficct.inf310sb.arboles;
 
 import java.util.*;
 
-public class ArbolBinarioBusqueda<K extends Comparable<K>, V, recorrido> implements IArbolBusqueda<K, V> {
+public class ArbolBinarioBusqueda<K extends Comparable<K>, V> implements IArbolBusqueda<K, V> {
 
     protected NodoBinario<K, V> raiz;
 
@@ -46,25 +46,70 @@ public class ArbolBinarioBusqueda<K extends Comparable<K>, V, recorrido> impleme
 
     private NodoBinario<K,V> reconstruirConPreOrden(List<K> clavesInOrden, List<V> valoresInOrden,
                                         List<K> clavesPreOrden, List<V> valoresPreOrden) {
+       if (clavesInOrden.isEmpty()){
+           return (NodoBinario<K, V>) NodoBinario.nodoVacio();
+       }
+
         int posicionDeClavePadreEnPreOrden = 0;
        K clavePadre = clavesPreOrden.get(posicionDeClavePadreEnPreOrden);
+       V valoresPadre = valoresPreOrden.get(posicionDeClavePadreEnPreOrden);
         int posicionDeClavePadreEnInOrden = this.posicionDeClave(clavePadre, clavesInOrden);
 
         // para armar la rama izquierda
         List<K> claveInOrdenPorIzquierda = clavesInOrden.subList(0, posicionDeClavePadreEnInOrden);
         List<V> valoresInOrdenPorIzquierda = valoresInOrden.subList(0, posicionDeClavePadreEnInOrden);
-        List<K> clavePreOrdenPorIzquierda = clavesPreOrden.subList(0, posicionDeClavePadreEnPreOrden);
-        List<V> valoresPreOrdenPorIzquierda = valoresPreOrden.subList(0, posicionDeClavePadreEnPreOrden);
+        List<K> clavePreOrdenPorIzquierda = clavesPreOrden.subList(1, posicionDeClavePadreEnInOrden + 1);
+        List<V> valoresPreOrdenPorIzquierda = valoresPreOrden.subList(1, posicionDeClavePadreEnInOrden + 1);
+        NodoBinario<K,V> hijoIzquierdo = reconstruirConPreOrden(claveInOrdenPorIzquierda,valoresInOrdenPorIzquierda,
+                clavePreOrdenPorIzquierda,valoresPreOrdenPorIzquierda );
 
         // para armar la rama derecha
+        List<K> claveInOrdenPorDerecha = clavesInOrden.subList(posicionDeClavePadreEnInOrden + 1, clavesInOrden.size() + 1 );
+        List<V> valoresInOrdenPorDerecha = valoresInOrden.subList(posicionDeClavePadreEnInOrden + 1, clavesInOrden.size() + 1);
+        List<K> clavePreOrdenPorDerecha = clavesPreOrden.subList(posicionDeClavePadreEnInOrden + 1, clavesInOrden.size() + 1);
+        List<V> valoresPreOrdenPorDerecha = valoresPreOrden.subList(posicionDeClavePadreEnInOrden + 1, clavesInOrden.size() + 1);
+        NodoBinario<K,V> hijoDerecho = reconstruirConPreOrden(claveInOrdenPorDerecha,valoresInOrdenPorDerecha,
+                clavePreOrdenPorDerecha,valoresPreOrdenPorDerecha );
 
 
         //armando el nodo actual
+        NodoBinario<K,V> nodoActual = new NodoBinario<>(clavePadre,valoresPadre);
+        nodoActual.setHijoIzquierdo(hijoIzquierdo);
+        nodoActual.setHijoDerecho(hijoDerecho);
+        return nodoActual;
     }
 
     private NodoBinario<K,V> reconstruirConPostOrden(List<K> clavesInOrden, List<V> valoresInOrden,
                                          List<K> clavesPostOrden, List<V> valoresPostOrden){
-        return  ;
+        if (clavesInOrden.isEmpty()){
+            return (NodoBinario<K, V>) NodoBinario.nodoVacio();
+        }
+
+        int posicionPadreEnPostOrden = clavesPostOrden.size();
+        K clavePadre = clavesPostOrden.get(posicionPadreEnPostOrden);
+        V valorPadre = valoresPostOrden.get(posicionPadreEnPostOrden);
+        int posicionPadreEnInOrden = this.posicionDeClave(clavePadre,clavesInOrden);
+
+        // para armar la rama izquierda
+        List<K> clavesEnInOrdenPorIzquierda = clavesInOrden.subList(0,posicionPadreEnInOrden);
+        List<V> valoresEnInOrdenPorIzquierda = valoresInOrden.subList(0,posicionPadreEnInOrden);
+        List<K> clavesEnPostOrdenPorIzquierda = clavesInOrden.subList(0,posicionPadreEnInOrden);
+        List<V> valoresEnPostOrdenPorIzquierda = valoresInOrden.subList(0,posicionPadreEnInOrden);
+        NodoBinario<K,V> hijosIzquierdos = reconstruirConPostOrden(clavesEnInOrdenPorIzquierda,valoresEnInOrdenPorIzquierda,
+                clavesEnPostOrdenPorIzquierda, valoresEnPostOrdenPorIzquierda);
+
+        // para armar la rama dercha
+        List<K> clavesEnInOrdenPorDerecha = clavesInOrden.subList(posicionPadreEnInOrden + 1,posicionPadreEnPostOrden + 1);
+        List<V> valoresEnInOrdenPorDerecha = valoresInOrden.subList(posicionPadreEnInOrden + 1,posicionPadreEnPostOrden + 1);
+        List<K> clavesEnPostOrdenPorDerecha = clavesInOrden.subList(posicionPadreEnInOrden,posicionPadreEnPostOrden + 1);
+        List<V> valoresEnPostOrdenPorDerecha = valoresInOrden.subList(posicionPadreEnInOrden, posicionPadreEnPostOrden + 1);
+        NodoBinario<K,V> hijosDerechos = reconstruirConPostOrden(clavesEnInOrdenPorDerecha,valoresEnInOrdenPorDerecha,
+                clavesEnPostOrdenPorDerecha, valoresEnPostOrdenPorDerecha);
+        //armando el nodo actual
+        NodoBinario<K,V> nodoActual = new NodoBinario<>();
+        nodoActual.setHijoIzquierdo(hijosIzquierdos);
+        nodoActual.setHijoDerecho(hijosDerechos);
+        return nodoActual;
     }
 
     private int posicionDeClave(K claveABuscar,List<K> listaDeClaves){
@@ -130,7 +175,7 @@ public class ArbolBinarioBusqueda<K extends Comparable<K>, V, recorrido> impleme
         return altura(this.raiz);
     }
 
-    private int altura(NodoBinario<K,V> nodoActual) {
+    protected int altura(NodoBinario<K,V> nodoActual) {
         if (NodoBinario.esNodoVacio(nodoActual)){
             return 0;
         }
@@ -232,6 +277,28 @@ public class ArbolBinarioBusqueda<K extends Comparable<K>, V, recorrido> impleme
         return nodoAnterior.getClave();
     }
 
+    public boolean tieneNodosCompletosEnNivel(int nivelObjetivo){
+        return tieneNodosCompletosEnNivel(this.raiz, nivelObjetivo,0 );
+
+    }
+
+    private boolean tieneNodosCompletosEnNivel(NodoBinario<K,V> nodoActual, int nivelObjetivo, int nivelActual) {
+         if (NodoBinario.esNodoVacio(nodoActual)){
+             return false;
+         }
+
+         if (nivelActual == nivelObjetivo){
+             return !nodoActual.esVacioHijoIzquierdo()  &&
+                     !nodoActual.esVacioHijoDerecho();
+         }
+
+         boolean completoPorIzquierda = this.tieneNodosCompletosEnNivel(nodoActual.getHijoIzquierdo(),
+                 nivelObjetivo, nivelActual + 1) ;
+         boolean completoPorDerecha = this.tieneNodosCompletosEnNivel(nodoActual.getHijoDerecho(),
+                 nivelObjetivo, nivelActual + 1) ;
+         return completoPorIzquierda && completoPorDerecha;
+    }
+
     @Override
     public K maximo() {
         if (this.esArbolVacio()){
@@ -289,8 +356,66 @@ public class ArbolBinarioBusqueda<K extends Comparable<K>, V, recorrido> impleme
     }
 
     @Override
-    public V eliminar(K clave) {
-        return null;
+    public V eliminar(K claveAEliminar) {
+          if (claveAEliminar == null) {
+              throw new IllegalArgumentException("Clave  a eliminar no puede ser nula");
+          }
+
+          V valorARetornar = this.buscar(claveAEliminar);
+          if(valorARetornar == null){
+              throw new IllegalArgumentException("La clave a eliminar no existe en el árbol");
+          }
+          this.raiz = eliminar(this.raiz, claveAEliminar);
+        return valorARetornar;
+    }
+
+    private NodoBinario<K,V> eliminar(NodoBinario<K,V> nodoActual, K claveAEliminar) {
+          K claveActual = nodoActual.getClave();
+          if (claveAEliminar.compareTo(claveActual) > 0){
+              NodoBinario<K,V> posibleNuevoHijoDerecho = eliminar(nodoActual.getHijoDerecho(), claveAEliminar);
+              nodoActual.setHijoDerecho(posibleNuevoHijoDerecho);
+              return nodoActual;
+          }
+        if (claveAEliminar.compareTo(claveActual) < 0){
+            NodoBinario<K,V> posibleNuevoHijoIzquierdo = eliminar(nodoActual.getHijoIzquierdo(), claveAEliminar);
+            nodoActual.setHijoIzquierdo(posibleNuevoHijoIzquierdo);
+            return nodoActual;
+        }
+        // si llego a este punto quiere decir que ya
+        // encontré el nodo con la clave a eliminar
+        // caso 1
+        if (nodoActual.esHoja()){
+            return (NodoBinario<K, V>) NodoBinario.nodoVacio();
+        }
+        // caso 2
+        //caso 2.1 solo tiene hijo izquierdo
+        if (nodoActual.esVacioHijoDerecho() && !nodoActual.esVacioHijoIzquierdo() ){
+            return nodoActual.getHijoIzquierdo();
+        }
+        //caso 2.2 solo tiene hijo derecho
+        if (!nodoActual.esVacioHijoDerecho() && nodoActual.esVacioHijoIzquierdo() ){
+            return nodoActual.getHijoDerecho();
+        }
+        //caso 3
+        // si tiene sus dos hijos
+        NodoBinario<K,V> nodoReemplazo = this.buscarNodoSucesor(nodoActual.getHijoDerecho());
+
+        NodoBinario<K,V> posibleNuevoHijoDerecho = eliminar(nodoActual.getHijoDerecho(), nodoReemplazo.getClave());
+        nodoActual.setHijoDerecho(posibleNuevoHijoDerecho);
+
+        nodoActual.setValor(nodoReemplazo.getValor());
+        nodoActual.setClave(nodoReemplazo.getClave());
+
+        return nodoActual;
+    }
+
+    protected NodoBinario<K,V> buscarNodoSucesor(NodoBinario<K,V> nodoActual) {
+        NodoBinario<K,V> nodoAnterior;
+        do {
+            nodoAnterior = nodoActual;
+            nodoActual = nodoActual.getHijoIzquierdo();
+        }while(!NodoBinario.esNodoVacio(nodoActual));
+        return nodoAnterior;
     }
 
     @Override
@@ -374,6 +499,7 @@ public class ArbolBinarioBusqueda<K extends Comparable<K>, V, recorrido> impleme
         // metodo amigo que haga el grueso del trabajo
         recorridoEnInOrdenRec(this.raiz, recorrido);
         return recorrido;
+
     }
 
     private void recorridoEnInOrdenRec(NodoBinario<K,V> nodoActual, List<K> recorrido){
